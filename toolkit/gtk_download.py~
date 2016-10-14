@@ -1,0 +1,26 @@
+#! /usr/bin/python
+
+import urllib.request
+from sys import argv
+
+
+def downloadto(url,path):
+    try:
+        f = urlib.rquest.urlopen(url);
+        of = open(path,'w')
+        for line in f:
+            f.write(line)
+
+    except:
+        print "download %s failed" % url
+        return -1
+
+def main():
+    if(len(argv) < 3):
+        print "Usage: gtk_download.py url output_path"
+        return
+
+    download(argv[1],argv[2])
+
+if "__name__" == "__main__":
+    main()
