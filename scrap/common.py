@@ -1,5 +1,7 @@
 #! /usr/local/bin/python3
 import pymysql
+import time
+
 
 def format_time(time_str):
     '''
@@ -10,6 +12,42 @@ def format_time(time_str):
         time_str = time_str.replace(" ","")
         
     return time_str
+
+
+def transfer_date_to_timestamp(kdate):
+    '''
+      转换 yyyymmdd 为时间戳 下午3点收盘时的
+    '''
+    print("date is: ",kdate)
+    kdate = "%s 15:00:00" % kdate
+    try:
+        time_struct = time.strptime(kdate,'%Y%m%d %H:%M:%S')
+        timestamp = time.mktime(time_struct)
+    except ValueError as e:
+        print(" error is: ",e)
+        print(" date is: ",kdate)
+        timestamp = 0
+    return timestamp
+    
+def transfer_date_and_time(date , hhmm):
+
+    if len(hhmm) < 4:
+        hhmm = '0'+hhmm
+    timevalue = date +" "+hhmm[:2]+":"+hhmm[2:]
+    try:
+        time_struct = time.strptime(timevalue,'%Y-%m-%d %H:%M')
+        timestamp = time.mktime(time_struct)
+        
+    except ValueError as e:
+        print("error is ",e)
+        print("date is: ",date)
+        print("time is: ",hhmm)
+        timestamp = 0
+
+#    print("time value is:",timevalue)
+#    print("time is: ",timestamp)
+    return timestamp
+
 
 def secureValue(item,index):
 
@@ -29,7 +67,7 @@ def secureDictValue(dictData, key,defaultValue = None):
 def initDatabase():
     
     try:
-        conn = pymysql.connect(host='localhost',user='root',password='',db='stock')
+        conn = pymysql.connect(host='localhost',user='chunhui',password='1234',db='stock')
         return conn
     except IOError as e:
         print("mysql error : ",e)
