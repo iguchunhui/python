@@ -1,4 +1,5 @@
-#! /usr/local/bin/python3
+#! /usr/bin/python3
+# /usr/local/bin/python3
 
 import urllib.request
 import time
@@ -9,7 +10,7 @@ import json
 import common
 
 stockList = None
-currentIndex = 0
+currentIndex = 2165
 lock = None
 
         
@@ -70,7 +71,7 @@ def scrap_info(conn , symbol):
         result = f.read().decode('utf8')
         try:
             j = json.loads(result)
-            if j["code"] == 0 :
+            if j != None and j["code"] == 0 :
                 klist = j["data"]["dline"]["list"]
                 if len(klist) == 0:
                     continue
@@ -79,8 +80,12 @@ def scrap_info(conn , symbol):
                     #print("store done")
             else:
                 print("query %s is failed " % query)
+                print("result is: \n",result)
         except IOError as e:
             print("json error is: \n",e)
+            print("result is: \n",result)
+        except BaseException as be:
+            print("json error is :\n",be);
             print("result is: \n",result)
         
             
