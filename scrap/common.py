@@ -5,7 +5,7 @@ import time
 
 def format_time(time_str):
     '''
-    yyyy-mm-dd hh:MM:ss => yyyymmddhhMMss
+     yyyy-mm-dd hh:MM:ss => yyyymmddhhMMss
     '''
     if len(time_str) >= 19:
         time_str = time_str.replace("-","").replace(":","")        
