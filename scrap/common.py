@@ -21,6 +21,7 @@ def transfer_date_to_timestamp(kdate):
       转换 yyyymmdd 为时间戳 下午3点收盘时的
     '''
     #print("date is: ",kdate)
+
     kdate = "%s 15:00:00" % kdate
     try:
         time_struct = time.strptime(kdate,'%Y%m%d %H:%M:%S')
@@ -151,7 +152,8 @@ def store_kline_data(conn,symbol , klist , fq , ktype):
         
         if count > 0 :
             continue
-        sql = "insert into kline(symbol , date , last , open , high , close , low , volume , amount , percent , ma5 , ma10 , ma20 , fq , type) values('%s','%s',%f , %f , %f , %f , %f , %f , %f , %f , %f , %f , %f , '%s' , '%s') ; " % (symbol , date , last , kopen , high , close , low , volume , amount , percent , ma5 , ma10 ,ma20 , fq , ktype)
+        timestamp = transfer_date_to_timestamp(date)
+        sql = "insert into kline(symbol , date , last , open , high , close , low , volume , amount , percent , ma5 , ma10 , ma20 , fq , type,timestamp) values('%s','%s',%f , %f , %f , %f , %f , %f , %f , %f , %f , %f , %f , '%s' , '%s',%s) ; " % (symbol , date , last , kopen , high , close , low , volume , amount , percent , ma5 , ma10 ,ma20 , fq , ktype,timestamp)
         
         #print("sql is: ",sql)
         sql = sql.encode('utf-8')
@@ -222,12 +224,18 @@ def store_quote_data(conn,symbol , data):
 def store_mline_data(conn,symbol,data):
 
     dbcur = conn.cursor()
+    if not "date" in data or not "list" in data:
+        print("error mline data:\n",data)
+        return
     date = data["date"]
     syms = data["list"]
     for d in syms :
         t = d[0] # time
         p = d[1] #price
         v = d[2] #volume
+
+        tv = "%04d" % t
+        timestamp = transfer_date_and_time(date,tv)
         #print(" %s %f %f "%(t,p,v))
         sql = "select symbol from mline where symbol = '%s' and date = '%s' and time = '%s';" %(symbol , date , t)
         #print("sql is: ",sql)
@@ -235,7 +243,7 @@ def store_mline_data(conn,symbol,data):
         if count > 0:
             #print("has this data\n")
             continue
-        sql = "insert into mline(symbol,date,time,price,volume) values('%s','%s','%s',%f,%f)" %(symbol,date,t,p,v)
+        sql = "insert into mline(symbol,date,time,price,volume,timestamp) values('%s','%s','%s',%f,%f,%f)" %(symbol,date,t,p,v,timestamp)
         #print("sql is: ",sql)
         dbcur = conn.cursor()
         dbcur.execute(sql)
