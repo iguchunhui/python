@@ -1,6 +1,8 @@
 #! /usr/local/bin/python3
 import pymysql
 import time
+from datetime import datetime
+from datetime import date
 
 
 def format_time(time_str):
@@ -18,7 +20,7 @@ def transfer_date_to_timestamp(kdate):
     '''
       转换 yyyymmdd 为时间戳 下午3点收盘时的
     '''
-    print("date is: ",kdate)
+    #print("date is: ",kdate)
     kdate = "%s 15:00:00" % kdate
     try:
         time_struct = time.strptime(kdate,'%Y%m%d %H:%M:%S')
@@ -28,6 +30,54 @@ def transfer_date_to_timestamp(kdate):
         print(" date is: ",kdate)
         timestamp = 0
     return timestamp
+    
+def now_timestamp():
+
+    today = datetime.today()
+    return today.timestamp()
+
+    
+def inadvance_from_now(ts):
+    '''
+    距离现在时间的ts 的时间
+    '''
+    now = now_timestamp()
+    return now - ts
+
+def amonth_ago_ts():
+
+    amonth = 30*24*60*60
+    return inadvance_from_now(amonth)
+    
+def exact_amonth_ago_ts():
+
+    today = datetime.today()
+    tp = today.timetuple()
+    mon = tp.tm_mon - 1
+    year = tp.tm_year
+    day = tp.tm_mday
+    if mon <= 0 :
+        mon = 12
+        year = year - 1
+
+    if tp.tm_mday == 31 :
+        if mon not in (1,3,5,7,8,10,12):
+            day = 30
+    
+    tp_list = list(tp)
+    tp_list[0] = year
+    tp_list[1] = mon
+    tp_list[2] = day
+    
+    tm = tuple(tp_list)
+    ntp = time.struct_time(tm)
+    ts = time.mktime(ntp)
+
+    return ts
+    
+    #dt = date.fromtimestamp(ts)
+    #print("date is: ",dt)
+
     
 def transfer_date_and_time(date , hhmm):
 
@@ -67,7 +117,9 @@ def secureDictValue(dictData, key,defaultValue = None):
 def initDatabase():
     
     try:
-        conn = pymysql.connect(host='localhost',user='chunhui',password='1234',db='stock')
+        #conn = pymysql.connect(host='localhost',user='chunhui',password='1234',db='stock')
+        conn = pymysql.connect(host='localhost',user='root',password='',db='stock')
+        
         return conn
     except IOError as e:
         print("mysql error : ",e)
@@ -160,7 +212,7 @@ def store_quote_data(conn,symbol , data):
     s5p = secureDictValue(data,"s5p",0)
     s5v = secureDictValue(data,"s5v",0)
 
-    sql = "insert into quote(symbol , time , high , low , preclose , open , last , volume , amount , qrr , timestamp , diff , price_change , amp , trade , pe , pb , status , mc , cmc , tso , share , bid_1_price , bid_1_volume , bid_2_price , bid_2_volume,bid_3_price,bid_3_volume , bid_4_price , bid_4_volume , bid_5_price , bid_5_volume , sell_1_price , sell_1_volume , sell_2_price , sell_2_volume , sell_3_price , sell_3_volume , sell_4_price , sell_4_volume , sell_5_price , sell_5_volume) values('%s','%s',%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,'%s',%f,%f,%f,%f, %f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f )" %(symbol,datetime,high,low,preclose,open_price,last,vol,amt,qrr,timestamp,diff,change,amp,trade,pe,pb,status,mc,cmc,tso,shares,b1p,b1v,b2p,b2v,b3p,b3v,b4p,b4v,b5p,b5v,s1p,s1v,s2p,s2v,s3p,s3v,s4p,s4v,s5p,s5v)
+    sql = "insert into quote(symbol , time , high , low , preclose , open , last , volume , amount , qrr , timestamp , diff , ratio_change , amp , trade , pe , pb , status , mc , cmc , tso , share , bid_1_price , bid_1_volume , bid_2_price , bid_2_volume,bid_3_price,bid_3_volume , bid_4_price , bid_4_volume , bid_5_price , bid_5_volume , sell_1_price , sell_1_volume , sell_2_price , sell_2_volume , sell_3_price , sell_3_volume , sell_4_price , sell_4_volume , sell_5_price , sell_5_volume) values('%s','%s',%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,'%s',%f,%f,%f,%f, %f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f )" %(symbol,datetime,high,low,preclose,open_price,last,vol,amt,qrr,timestamp,diff,change,amp,trade,pe,pb,status,mc,cmc,tso,shares,b1p,b1v,b2p,b2v,b3p,b3v,b4p,b4v,b5p,b5v,s1p,s1v,s2p,s2v,s3p,s3v,s4p,s4v,s5p,s5v)
     
     
     dbcur.execute(sql)

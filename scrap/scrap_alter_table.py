@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/local/bin/python3
 
 import common
 
@@ -53,9 +53,12 @@ def alter_mline():
 
 def alter():
 
-    #alter_kline()
-    alter_mline()
-
+    print("will alter kline")
+    alter_kline()
+    print("alter kline done")
+    #print("will alert mline")
+    #alter_mline()
+    #print("alert mline done")
 
 if __name__ == '__main__':
 
